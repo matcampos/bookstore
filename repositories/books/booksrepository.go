@@ -20,6 +20,7 @@ func Create(book booksmodel.Book) error {
 	if connErr != nil {
 		return connErr
 	}
+	defer conn.Client.Disconnect(conn.Ctx)
 
 	book.ID = primitive.NewObjectID()
 
@@ -28,11 +29,8 @@ func Create(book booksmodel.Book) error {
 	_, insertionErr := collection.InsertOne(context.TODO(), book)
 
 	if insertionErr != nil {
-		defer conn.Client.Disconnect(conn.Ctx)
 		return insertionErr
 	}
-
-	defer conn.Client.Disconnect(conn.Ctx)
 
 	return nil
 }
@@ -47,22 +45,19 @@ func FindAllPaginated(skip int64, limit int64) (booksmodel.BooksPaginatedList, e
 	if connErr != nil {
 		return booksPaginatedList, connErr
 	}
+	defer conn.Client.Disconnect(conn.Ctx)
 
 	collection := conn.Client.Database(os.Getenv("DATABASE")).Collection("books")
 
 	count, countError := count(collection)
 	if countError != nil {
-		defer conn.Client.Disconnect(conn.Ctx)
 		return booksPaginatedList, countError
 	}
 
 	books, booksError := findPaginated(collection, skip, limit)
 	if booksError != nil {
-		defer conn.Client.Disconnect(conn.Ctx)
 		return booksPaginatedList, booksError
 	}
-
-	defer conn.Client.Disconnect(conn.Ctx)
 
 	booksPaginatedList = booksmodel.BooksPaginatedList{Count: count, Books: books}
 	return booksPaginatedList, nil
@@ -113,6 +108,7 @@ func Update(id primitive.ObjectID, updateBook booksmodel.UpdateBook) (booksmodel
 	if connErr != nil {
 		return book, connErr
 	}
+	defer conn.Client.Disconnect(conn.Ctx)
 
 	collection := conn.Client.Database(os.Getenv("DATABASE")).Collection("books")
 
@@ -124,11 +120,8 @@ func Update(id primitive.ObjectID, updateBook booksmodel.UpdateBook) (booksmodel
 	updateResult := collection.FindOneAndUpdate(context.Background(), filter, update, &updateOptions)
 	decodeErr := updateResult.Decode(&book)
 	if decodeErr != nil {
-		defer conn.Client.Disconnect(conn.Ctx)
 		return book, decodeErr
 	}
-
-	defer conn.Client.Disconnect(conn.Ctx)
 
 	return book, nil
 }
@@ -168,6 +161,7 @@ func Delete(id primitive.ObjectID) (booksmodel.Book, error) {
 	if connErr != nil {
 		return deletedBook, connErr
 	}
+	defer conn.Client.Disconnect(conn.Ctx)
 
 	collection := conn.Client.Database(os.Getenv("DATABASE")).Collection("books")
 	filter := bson.M{"_id": id}
@@ -176,11 +170,9 @@ func Delete(id primitive.ObjectID) (booksmodel.Book, error) {
 
 	decodeErr := deleteResult.Decode(&deletedBook)
 	if decodeErr != nil {
-		defer conn.Client.Disconnect(conn.Ctx)
 		return deletedBook, decodeErr
 	}
 
-	defer conn.Client.Disconnect(conn.Ctx)
 	return deletedBook, nil
 }
 
@@ -191,6 +183,7 @@ func FindById(id primitive.ObjectID) (booksmodel.Book, error) {
 	if connErr != nil {
 		return findedBook, connErr
 	}
+	defer conn.Client.Disconnect(conn.Ctx)
 
 	collection := conn.Client.Database(os.Getenv("DATABASE")).Collection("books")
 	filter := bson.M{"_id": id}
@@ -199,10 +192,8 @@ func FindById(id primitive.ObjectID) (booksmodel.Book, error) {
 
 	decodeErr := findResult.Decode(&findedBook)
 	if decodeErr != nil {
-		defer conn.Client.Disconnect(conn.Ctx)
 		return findedBook, decodeErr
 	}
 
-	defer conn.Client.Disconnect(conn.Ctx)
 	return findedBook, nil
 }

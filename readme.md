@@ -66,7 +66,7 @@ To build the and run the project with docker you must configure the docker.env f
 * [errors](https://github.com/go-errors/errors) - Library to get the stackTrace of any error on go.
 * [mongo-go-driver](https://github.com/mongodb/mongo-go-driver) - Library to use MongoDB database on golang.
 * [godotenv](https://github.com/joho/godotenv) - Library to use .env files and set the environment variable on golang.
-* [ozzo-validation](https://github.com/go-ozzo/ozzo-validation) - Library to validate structs properties.
+* [ozzo-validation](https://github.com/go-ozzo/ozzo-validation) - Library to validate structs parameters.
 * [gorilla/mux](https://github.com/gorilla/mux) - Library to create api endpoints on golang.
 
 ## Authors

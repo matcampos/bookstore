@@ -11,6 +11,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// main function loads the environment variables and starts de api.
 func main() {
 	err := godotenv.Load()
 	if err != nil {

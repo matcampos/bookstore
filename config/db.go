@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// Connect function establish the connection with mongodb returns a *databaseconnectionmodel.Connection instance or an error interface.
 func Connect() (*databaseconnectionmodel.Connection, error) {
 	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("DATABASE_URI")))
 

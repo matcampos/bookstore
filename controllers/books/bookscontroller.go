@@ -2,6 +2,7 @@ package bookscontroller
 
 import (
 	jsonresponse "bookstore/helpers/json-response"
+	mongoerrors "bookstore/helpers/mongo-errors"
 	booksmodel "bookstore/models/books"
 	errormodel "bookstore/models/error"
 	successmodel "bookstore/models/success"
@@ -15,6 +16,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// Create receives the http.ResponseWriter and the *http.Request and returns by the http.ResponseWriter the message {success: true} or an error if something wrong happens.
 func Create(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
@@ -30,7 +32,12 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 	if invalidBook != nil {
 		errorMessage := invalidBook.Error()
-		messages := []errormodel.Message{errormodel.Message{Pt: errorMessage, En: errorMessage}}
+		messages := []errormodel.Message{
+			{
+				Pt: errorMessage,
+				En: errorMessage,
+			},
+		}
 		err := errormodel.Error{Code: http.StatusBadRequest, Messages: messages}
 		jsonresponse.CustomError(w, err, http.StatusBadRequest)
 		return
@@ -42,6 +49,12 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	createBookError := booksrepository.Create(book)
 
 	if createBookError != nil {
+		mongoError, statusCode := mongoerrors.HandleMongoErrors(createBookError)
+		if len(mongoError.Messages) > 0 {
+			jsonresponse.CustomError(w, mongoError, statusCode)
+			return
+		}
+
 		jsonresponse.ToError(w, createBookError, 0)
 		return
 	}
@@ -50,9 +63,10 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 	successJSON, err := json.Marshal(success)
 
-	jsonresponse.ToJson(w, successJSON)
+	jsonresponse.ToJSON(w, successJSON)
 }
 
+// FindAllPaginated receives the http.ResponseWriter and the *http.Request and returns by the http.ResponseWriter a booksmodel.BooksPaginatedList struct.
 func FindAllPaginated(w http.ResponseWriter, r *http.Request) {
 	skip, _ := strconv.ParseInt(mux.Vars(r)["skip"], 10, 64)
 	limit, _ := strconv.ParseInt(mux.Vars(r)["limit"], 10, 64)
@@ -61,24 +75,31 @@ func FindAllPaginated(w http.ResponseWriter, r *http.Request) {
 		limit = 50
 	}
 
-	books, findBooksErr := booksrepository.FindAllPaginated(skip, limit)
+	booksPaginatedList, findBooksErr := booksrepository.FindAllPaginated(skip, limit)
 
 	if findBooksErr != nil {
+		mongoError, statusCode := mongoerrors.HandleMongoErrors(findBooksErr)
+		if len(mongoError.Messages) > 0 {
+			jsonresponse.CustomError(w, mongoError, statusCode)
+			return
+		}
+
 		jsonresponse.ToError(w, findBooksErr, 0)
 		return
 	}
 
-	booksJSON, booksJSONErr := json.Marshal(books)
+	booksPaginatedJSON, booksPaginatedJSONErr := json.Marshal(booksPaginatedList)
 
-	if booksJSONErr != nil {
-		jsonresponse.ToError(w, booksJSONErr, 0)
+	if booksPaginatedJSONErr != nil {
+		jsonresponse.ToError(w, booksPaginatedJSONErr, 0)
 		return
 	}
 
-	jsonresponse.ToJson(w, booksJSON)
+	jsonresponse.ToJSON(w, booksPaginatedJSON)
 
 }
 
+// Update receives the http.ResponseWriter, the *http.Request and returns by the http.ResponseWriter the updated object or an errormodel.Error struct with status code 404.
 func Update(w http.ResponseWriter, r *http.Request) {
 	id, convertingError := primitive.ObjectIDFromHex(mux.Vars(r)["id"])
 	if convertingError != nil {
@@ -96,9 +117,13 @@ func Update(w http.ResponseWriter, r *http.Request) {
 
 	updatedObject, updatedObjectErr := booksrepository.Update(id, updateBook)
 	if updatedObjectErr != nil {
-		messages := []errormodel.Message{errormodel.Message{Pt: updatedObjectErr.Error(), En: updatedObjectErr.Error()}}
-		errorModel := errormodel.Error{Code: http.StatusNotFound, Messages: messages}
-		jsonresponse.CustomError(w, errorModel, http.StatusNotFound)
+		mongoError, statusCode := mongoerrors.HandleMongoErrors(updatedObjectErr)
+		if len(mongoError.Messages) > 0 {
+			jsonresponse.CustomError(w, mongoError, statusCode)
+			return
+		}
+
+		jsonresponse.ToError(w, updatedObjectErr, 0)
 		return
 	}
 
@@ -108,9 +133,10 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonresponse.ToJson(w, updatedBookJSON)
+	jsonresponse.ToJSON(w, updatedBookJSON)
 }
 
+// Delete receives the http.ResponseWriter and the *http.Request and returns by the http.ResponseWriter the deleted object or an errormodel.Error struct with status code 404.
 func Delete(w http.ResponseWriter, r *http.Request) {
 	id, convertingError := primitive.ObjectIDFromHex(mux.Vars(r)["id"])
 	if convertingError != nil {
@@ -120,9 +146,13 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 
 	deleteObject, deleteObjectErr := booksrepository.Delete(id)
 	if deleteObjectErr != nil {
-		messages := []errormodel.Message{errormodel.Message{Pt: deleteObjectErr.Error(), En: deleteObjectErr.Error()}}
-		errorModel := errormodel.Error{Code: http.StatusNotFound, Messages: messages}
-		jsonresponse.CustomError(w, errorModel, http.StatusNotFound)
+		mongoError, statusCode := mongoerrors.HandleMongoErrors(deleteObjectErr)
+		if len(mongoError.Messages) > 0 {
+			jsonresponse.CustomError(w, mongoError, statusCode)
+			return
+		}
+
+		jsonresponse.ToError(w, deleteObjectErr, 0)
 		return
 	}
 
@@ -132,29 +162,34 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonresponse.ToJson(w, deletedObjectJSON)
+	jsonresponse.ToJSON(w, deletedObjectJSON)
 }
 
-func FindById(w http.ResponseWriter, r *http.Request) {
+// FindByID receives the http.ResponseWriter and the *http.Request and returns by the http.ResponseWriter the found object or an errormodel.Error struct with status code 404.
+func FindByID(w http.ResponseWriter, r *http.Request) {
 	id, convertingError := primitive.ObjectIDFromHex(mux.Vars(r)["id"])
 	if convertingError != nil {
 		jsonresponse.ToError(w, convertingError, 0)
 		return
 	}
 
-	findedObject, findedObjectErr := booksrepository.FindById(id)
-	if findedObjectErr != nil {
-		messages := []errormodel.Message{errormodel.Message{Pt: findedObjectErr.Error(), En: findedObjectErr.Error()}}
-		errorModel := errormodel.Error{Code: http.StatusNotFound, Messages: messages}
-		jsonresponse.CustomError(w, errorModel, http.StatusNotFound)
+	foundObject, foundObjectErr := booksrepository.FindByID(id)
+	if foundObjectErr != nil {
+		mongoError, statusCode := mongoerrors.HandleMongoErrors(foundObjectErr)
+		if len(mongoError.Messages) > 0 {
+			jsonresponse.CustomError(w, mongoError, statusCode)
+			return
+		}
+
+		jsonresponse.ToError(w, foundObjectErr, http.StatusNotFound)
 		return
 	}
 
-	findedObjectJSON, findedObjectJSONErr := json.Marshal(findedObject)
-	if findedObjectJSONErr != nil {
-		jsonresponse.ToError(w, findedObjectJSONErr, 0)
+	foundObjectJSON, foundObjectJSONErr := json.Marshal(foundObject)
+	if foundObjectJSONErr != nil {
+		jsonresponse.ToError(w, foundObjectJSONErr, 0)
 		return
 	}
 
-	jsonresponse.ToJson(w, findedObjectJSON)
+	jsonresponse.ToJSON(w, foundObjectJSON)
 }

@@ -1,0 +1,117 @@
+{
+	"info": {
+		"_postman_id": "c532a2b0-3529-485e-871b-127da1891ddd",
+		"name": "Bookstore",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "books",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Crime and punishment\",\n    \"author\": \"Fiodor dostoiévski\",\n    \"genre\": \"novel\",\n    \"pages\": 569,\n    \"price\": 40\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiUrl}}books",
+							"host": [
+								"{{apiUrl}}books"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find All Paginated",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiUrl}}books/{{skip}}/{{limit}}",
+							"host": [
+								"{{apiUrl}}books"
+							],
+							"path": [
+								"{{skip}}",
+								"{{limit}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Crime and punishment\",\n    \"price\": 90,\n    \"pages\": 560\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiUrl}}books/{{id}}",
+							"host": [
+								"{{apiUrl}}books"
+							],
+							"path": [
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{apiUrl}}books/{{id}}",
+							"host": [
+								"{{apiUrl}}books"
+							],
+							"path": [
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FindByID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiUrl}}books/{{id}}",
+							"host": [
+								"{{apiUrl}}books"
+							],
+							"path": [
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

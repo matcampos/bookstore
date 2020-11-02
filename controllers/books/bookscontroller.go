@@ -103,6 +103,11 @@ func FindAllPaginated(w http.ResponseWriter, r *http.Request) {
 func Update(w http.ResponseWriter, r *http.Request) {
 	id, convertingError := primitive.ObjectIDFromHex(mux.Vars(r)["id"])
 	if convertingError != nil {
+		mongoError, statusCode := mongoerrors.HandleMongoErrors(convertingError)
+		if len(mongoError.Messages) > 0 {
+			jsonresponse.CustomError(w, mongoError, statusCode)
+			return
+		}
 		jsonresponse.ToError(w, convertingError, 0)
 		return
 	}
@@ -140,6 +145,11 @@ func Update(w http.ResponseWriter, r *http.Request) {
 func Delete(w http.ResponseWriter, r *http.Request) {
 	id, convertingError := primitive.ObjectIDFromHex(mux.Vars(r)["id"])
 	if convertingError != nil {
+		mongoError, statusCode := mongoerrors.HandleMongoErrors(convertingError)
+		if len(mongoError.Messages) > 0 {
+			jsonresponse.CustomError(w, mongoError, statusCode)
+			return
+		}
 		jsonresponse.ToError(w, convertingError, 0)
 		return
 	}
@@ -169,6 +179,11 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 func FindByID(w http.ResponseWriter, r *http.Request) {
 	id, convertingError := primitive.ObjectIDFromHex(mux.Vars(r)["id"])
 	if convertingError != nil {
+		mongoError, statusCode := mongoerrors.HandleMongoErrors(convertingError)
+		if len(mongoError.Messages) > 0 {
+			jsonresponse.CustomError(w, mongoError, statusCode)
+			return
+		}
 		jsonresponse.ToError(w, convertingError, 0)
 		return
 	}

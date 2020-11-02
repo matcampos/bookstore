@@ -2,6 +2,7 @@ package mongoerrors
 
 import (
 	errormodel "bookstore/models/error"
+	"encoding/hex"
 	"net/http"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -24,6 +25,17 @@ func HandleMongoErrors(err error) (errormodel.Error, int) {
 			Code: http.StatusNotFound,
 		}
 		statusCode = http.StatusNotFound
+	case hex.ErrLength:
+		errorModel = errormodel.Error{
+			Messages: []errormodel.Message{
+				{
+					Pt: "O parâmetro id deve ser um ObjectId válido.",
+					En: "Id parameter must be a valid ObjectId.",
+				},
+			},
+			Code: http.StatusNotFound,
+		}
+		statusCode = http.StatusExpectationFailed
 	}
 
 	return errorModel, statusCode

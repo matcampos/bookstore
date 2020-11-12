@@ -10,6 +10,7 @@
 * Have an IDE with support to Go programming language.
 
 ``` 
+
     git clone https://github.com/matcampos/bookstore.git
 ```
 
@@ -27,13 +28,22 @@ Are them:
 Execute the following command to install all dependencies of the project.
 
 ``` 
+
     go get -d -v ./...
 ```
 
 To execute the project on your local machine run the following command on root directory of the project:
 
 ``` 
+
     go run main.go
+```
+
+To execute the project on your local machine watching file changes install nodemon with [npm](https://www.npmjs.com/get-npm) running the following command: `npm i nodemon -g` and then run the following command:
+
+``` 
+
+    sh nodemon.sh
 ```
 
 ### Build
@@ -41,14 +51,16 @@ To execute the project on your local machine run the following command on root d
 To build the project execute the following command
 
 ``` 
+
     go install
 ```
 
-- to run this build go on terminal in the root directory of the project and enter: `bookstore`
+* to run this build go on terminal in the root directory of the project and enter: `bookstore`
 
 Another option to build and run the it is the following command:
 
 ``` 
+
     go build main.go && ./main.go
 ```
 
@@ -57,6 +69,7 @@ Another option to build and run the it is the following command:
 To build the and run the project with docker you must configure the docker.env file, then you run the following command on root directory of the project.
 
 ``` 
+
     docker-compose up -d
 ```
 

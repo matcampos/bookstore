@@ -85,10 +85,10 @@ func findPaginated(collection *mongo.Collection, skip int64, limit int64) ([]boo
 		return nil, cursorError
 	}
 
-	var books []booksmodel.Book = []booksmodel.Book{}
+	books := []booksmodel.Book{}
 
 	for cursor.Next(context.Background()) {
-		var book booksmodel.Book
+		book := booksmodel.Book{}
 		decodeErr := cursor.Decode(&book)
 		if decodeErr != nil {
 			return books, decodeErr

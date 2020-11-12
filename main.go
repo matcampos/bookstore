@@ -1,12 +1,12 @@
 package main
 
 import (
+	gziphandler "bookstore/middlewares/gziphandler"
+	"bookstore/routes"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
-
-	"bookstore/routes"
 
 	"github.com/joho/godotenv"
 )
@@ -19,5 +19,5 @@ func main() {
 	}
 	router := routes.Routes()
 	fmt.Println("Running server on port " + os.Getenv("PORT"))
-	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), router))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), gziphandler.Gzip(router)))
 }

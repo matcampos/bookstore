@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// Book struct is the full object of the book that will be save on mongodb.
+// Book struct is the full object of the book that will be saved on mongodb.
 type Book struct {
 	ID        primitive.ObjectID `bson:"_id, omitempty" json:"_id,omitempty"`
 	Name      string             `bson:"name" json:"name,omitempty"`

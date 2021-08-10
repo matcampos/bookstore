@@ -21,7 +21,7 @@ before you run the project you need to configure the environment variable files.
 Are them:
 
 * .env - The .env.sample file shows all fields which this file need.
-* docker.env - The same content of .env-sample file but with your docker container configurations, and DATABASE_HOST env value must be "database".
+* docker.env - The same content of .env-sample file but with your docker container configurations, and DATABASE_URI env value must be "mongodb://database:27017".
 
 ### Instalation
 

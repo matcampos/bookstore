@@ -8,6 +8,8 @@ services:
       - "3000:3000"
     links:
       - "db:database"
+    env_file:
+    - docker.env
   db:
     image: mongo
     ports:
